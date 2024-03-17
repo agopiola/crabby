@@ -1,0 +1,43 @@
+--CREATE FLINK SOURCE TABLE FROM TOPIC DEFINITION--
+
+CREATE TABLE aiven_iot_source (
+    `uuid` STRING,
+    `message` ROW(`timestamp` VARCHAR, `num_steps` INT, `pulse` INT, `total_calories` INT)
+) WITH (
+    'connector' = 'kafka',
+    'properties.bootstrap.servers' = '',
+    'scan.startup.mode' = 'earliest-offset',
+    'topic' = 'aiven-iot-events',
+    'value.format' = 'json'
+)
+
+--Create FLINK SINK TABLE #1
+CREATE TABLE aiven_iot_even (
+   `uuid` STRING,
+   `message` ROW(`timestamp` VARCHAR, `num_steps` INT, `pulse` INT, `total_calories` INT)
+) WITH (
+    'connector' = 'kafka',
+    'properties.bootstrap.servers' = '',
+    'scan.startup.mode' = 'earliest-offset',
+    'topic' = 'aiven-iot-events',
+    'value.format' = 'json'
+)
+
+--CREATE FLINK SINK TABLE #2
+CREATE TABLE aiven_iot_odd (
+   `uuid` STRING,
+    `message` ROW(`timestamp` VARCHAR, `num_steps` INT, `pulse` INT, `total_calories` INT)
+) WITH (
+    'connector' = 'kafka',
+    'properties.bootstrap.servers' = '',
+    'scan.startup.mode' = 'earliest-offset',
+    'topic' = 'aiven-iot-odd',
+    'value.format' = 'json'
+)
+
+EXECUTE STATEMENT SET
+--INSERT DATA INTO TWO FLINK SINK TABLES BASED ON EVEN OR ODD INTERGER FOR total_calories--
+BEGIN
+    INSERT INTO `aiven_iot_even` SELECT * FROM `aiven_iot_source` WHERE CAST(total_calories AS INT) % 2 = 0;
+    INSERT INTO `aiven_iot_odd` SELECT * FROM `aiven_iot_source` WHERE CAST(total_calories AS INT) % 2 <> 0;
+END
