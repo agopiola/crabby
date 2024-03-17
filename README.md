@@ -28,9 +28,3 @@ Create a short tutorial which has to be 10 minutes or less leveraging Aiven for 
 
 
 
-
-
-
-**InfluxDB was not an option so I had to resort to using PostgrenDB
-Additionally I was attempting to use InfluxDB as suggested in the assignment though support mentioned it was no logner supported.  My alternative 
-
